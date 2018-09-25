@@ -5,7 +5,6 @@
       <module fileurl="file://$PROJECT_DIR$/BluetoothChatAppAndroid.iml" filepath="$PROJECT_DIR$/BluetoothChatAppAndroid.iml" />
       <module fileurl="file://$PROJECT_DIR$/SOS-Chat.iml" filepath="$PROJECT_DIR$/SOS-Chat.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
-      <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
     </modules>
   </component>
 </project>

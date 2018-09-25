@@ -56,6 +56,7 @@ public class MainActivity extends AppCompatActivity {
     private static final int SELECT_PICTURE = 43;
     private String selectedImagePath;
     private ImageView imagen;
+    Bitmap bmp;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -229,6 +230,7 @@ public class MainActivity extends AppCompatActivity {
         inputLayout = (TextInputLayout) findViewById(R.id.input_layout);
         View btnSend = findViewById(R.id.btn_send);
         View btnSendImg = findViewById(R.id.btn_sendImg);
+        imagen = (ImageView)findViewById(R.id.imgSelect);
 
         btnSendImg.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -236,8 +238,7 @@ public class MainActivity extends AppCompatActivity {
                 /*Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
                 intent.addCategory(Intent.CATEGORY_OPENABLE);
                 intent.setType("image/*");
-                startActivityForResult(intent, REQUEST_CODE);*/
-
+                startActivityForResult(intent, SELECT_PICTURE);*/
                 Intent intent = new Intent();
                 intent.setType("image/*");
                 intent.setAction(Intent.ACTION_GET_CONTENT);
@@ -278,21 +279,35 @@ public class MainActivity extends AppCompatActivity {
             case SELECT_PICTURE:
                 if (resultCode == Activity.RESULT_OK){
                     if(data != null){
-                        Uri selectedImage = data.getData();
-                        String[] filePathColumn = { MediaStore.Images.Media.DATA };
-                        Cursor cursor = getContentResolver().query(selectedImage,
-                                filePathColumn, null, null, null);
-                        cursor.moveToFirst();
-                        int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
-                        String picturePath = cursor.getString(columnIndex);
-                        cursor.close();
-                        imagen.setImageBitmap(BitmapFactory.decodeFile(picturePath));
+                        try{
+
+                            Uri imgUri = data.getData();
+                            //String selectedImagePath = getPath(imgUri);
+                            //BitmapFactory.Options options = new BitmapFactory.Options();
+                            //options.inSampleSize = 2;
+                            //bmp = BitmapFactory.decodeFile(selectedImagePath, options);
+                            Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), imgUri);
+                            bitmap = Bitmap.createScaledBitmap(bitmap,  600 ,600, true);
+                            imagen.setImageBitmap(bitmap); //trying bitmap
+                            Toast.makeText(this, selectedImagePath, Toast.LENGTH_SHORT).show();
+
+                        }catch (Exception e){
+                            Toast.makeText(this, e.toString(), Toast.LENGTH_SHORT).show();
+                        }
                     }
                 }else {
+                    Toast.makeText(this, "Error al escoger imagen", Toast.LENGTH_SHORT).show();
                     finish();
                 }
         }
     }
+
+    /*public String getPath(Uri uri) {
+        Cursor cursor = getContentResolver().query(uri, null, null, null, null);
+        cursor.moveToFirst();
+        int idx = cursor.getColumnIndex(MediaStore.Images.ImageColumns.DATA);
+        return cursor.getString(idx);
+    }*/
 
     private void sendMessage(String message) {
         if (chatController.getState() != ChatController.STATE_CONNECTED) {

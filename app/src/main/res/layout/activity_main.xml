@@ -14,6 +14,15 @@
         android:layout_weight="0.2"
         android:orientation="vertical">
 
+
+        <ImageView
+            android:id="@+id/imgSelect"
+
+            android:layout_alignParentTop="true"
+            android:layout_centerHorizontal="true"
+            android:layout_width="100dp"
+            android:layout_height="100dp"/>
+
         <TextView
             android:id="@+id/status"
             android:layout_width="match_parent"
@@ -27,12 +36,6 @@
             android:layout_marginTop="10dp"
             android:text="Connect" />
     </LinearLayout>
-
-    <ImageView
-        android:id="@+id/imgSelect"
-        android:layout_width="60dp"
-        android:layout_height="60dp"
-        />
 
     <ListView
         android:id="@+id/list"
