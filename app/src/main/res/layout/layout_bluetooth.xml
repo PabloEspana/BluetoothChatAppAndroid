@@ -8,7 +8,7 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Paired Devices" />
+        android:text="Dispositivos Vinculados" />
 
     <ListView
         android:id="@+id/pairedDeviceList"
@@ -18,7 +18,7 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Discovered Devices" />
+        android:text="Dispositivos Encontrados" />
 
     <ListView
         android:id="@+id/discoveredDeviceList"
@@ -29,7 +29,7 @@
         android:id="@+id/cancelButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Cancel" />
+        android:text="Cancelar" />
 
 
 </LinearLayout>
