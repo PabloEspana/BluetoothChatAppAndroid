@@ -53,8 +53,9 @@ public class MainActivity extends AppCompatActivity {
     private BluetoothDevice connectingDevice;  //
     private ArrayAdapter<String> discoveredDevicesAdapter;
 
-    private static final int REQUEST_CODE = 43;
-
+    private static final int SELECT_PICTURE = 43;
+    private String selectedImagePath;
+    private ImageView imagen;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -232,10 +233,15 @@ public class MainActivity extends AppCompatActivity {
         btnSendImg.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+                /*Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
                 intent.addCategory(Intent.CATEGORY_OPENABLE);
                 intent.setType("image/*");
-                startActivityForResult(intent, REQUEST_CODE);
+                startActivityForResult(intent, REQUEST_CODE);*/
+
+                Intent intent = new Intent();
+                intent.setType("image/*");
+                intent.setAction(Intent.ACTION_GET_CONTENT);
+                startActivityForResult(Intent.createChooser(intent,"Select Picture"), SELECT_PICTURE);
             }
         });
 
@@ -268,22 +274,23 @@ public class MainActivity extends AppCompatActivity {
                 } else {
                     Toast.makeText(this, "Bluetooth still disabled, turn off application!", Toast.LENGTH_SHORT).show();
                     finish();
+                };
+            case SELECT_PICTURE:
+                if (resultCode == Activity.RESULT_OK){
+                    if(data != null){
+                        Uri selectedImage = data.getData();
+                        String[] filePathColumn = { MediaStore.Images.Media.DATA };
+                        Cursor cursor = getContentResolver().query(selectedImage,
+                                filePathColumn, null, null, null);
+                        cursor.moveToFirst();
+                        int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
+                        String picturePath = cursor.getString(columnIndex);
+                        cursor.close();
+                        imagen.setImageBitmap(BitmapFactory.decodeFile(picturePath));
+                    }
+                }else {
+                    finish();
                 }
-        }
-
-        // Luego de escoger imagenes
-        if (requestCode == REQUEST_CODE && resultCode == Activity.RESULT_OK ){
-            if(data != null){
-                Uri uri = data.getData();
-                String[] filePathColumn = { MediaStore.Images.Media.DATA };
-                Cursor cursor = getContentResolver().query(uri,filePathColumn, null, null, null);
-                cursor.moveToFirst();
-                int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
-                String picturePath = cursor.getString(columnIndex);
-                cursor.close();
-                ImageView imageView = (ImageView) findViewById(R.id.imgSelect);
-                imageView.setImageBitmap(BitmapFactory.decodeFile(picturePath));
-            }
         }
     }
 
