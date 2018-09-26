@@ -282,16 +282,15 @@ public class MainActivity extends AppCompatActivity {
                         try{
 
                             Uri imgUri = data.getData();
-                            //String selectedImagePath = getPath(imgUri);
-                            //BitmapFactory.Options options = new BitmapFactory.Options();
-                            //options.inSampleSize = 2;
-                            //bmp = BitmapFactory.decodeFile(selectedImagePath, options);
+                            String path = getPath(imgUri);
+                            Toast.makeText(this, "Image Path : " + path, Toast.LENGTH_SHORT).show();
+
                             Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), imgUri);
                             bitmap = Bitmap.createScaledBitmap(bitmap,  600 ,600, true);
-                            imagen.setImageBitmap(bitmap); //trying bitmap
-                            Toast.makeText(this, selectedImagePath, Toast.LENGTH_SHORT).show();
+                            imagen.setImageBitmap(bitmap);
 
                         }catch (Exception e){
+                            //e.printStackTrace();
                             Toast.makeText(this, e.toString(), Toast.LENGTH_SHORT).show();
                         }
                     }
@@ -302,12 +301,13 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    /*public String getPath(Uri uri) {
-        Cursor cursor = getContentResolver().query(uri, null, null, null, null);
+    public String getPath(Uri uri) {
+        String[] projection = { MediaStore.Images.Media.DATA };
+        Cursor cursor = managedQuery(uri, projection, null, null, null);
+        int column_index = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
         cursor.moveToFirst();
-        int idx = cursor.getColumnIndex(MediaStore.Images.ImageColumns.DATA);
-        return cursor.getString(idx);
-    }*/
+        return cursor.getString(column_index);
+    }
 
     private void sendMessage(String message) {
         if (chatController.getState() != ChatController.STATE_CONNECTED) {
