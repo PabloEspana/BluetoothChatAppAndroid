@@ -12,6 +12,7 @@ import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Handler;
 import android.os.Message;
 import android.provider.MediaStore;
@@ -27,7 +28,10 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Set;
 
 public class MainActivity extends AppCompatActivity {
@@ -53,10 +57,15 @@ public class MainActivity extends AppCompatActivity {
     private BluetoothDevice connectingDevice;  //
     private ArrayAdapter<String> discoveredDevicesAdapter;
 
-    private static final int SELECT_PICTURE = 43;
-    private String selectedImagePath;
+    private static final int SELECT_PICTURE = 43; // código de resultado al escoger imagen
     private ImageView imagen;
-    Bitmap bmp;
+    private boolean hay_imagen = false;
+    private Bitmap bitmap;
+    String tipo_mensaje = "texto";
+    Byte[] buffer_img = null;
+    int nummero_de_bytes = 0;
+    int index = 0;
+    boolean flag = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -91,15 +100,15 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public boolean handleMessage(Message msg) {
             switch (msg.what) {
-                case MESSAGE_STATE_CHANGE:
+                case MESSAGE_STATE_CHANGE:  // Si es mensaje de cambio de estado
                     switch (msg.arg1) {
-                        case ChatController.STATE_CONNECTED:
-                            setStatus("Connected to: " + connectingDevice.getName());
-                            btnConnect.setEnabled(false);
+                        case ChatController.STATE_CONNECTED:  // Si es estado conectado
+                            setStatus("Connected to: " + connectingDevice.getName());  // Se envía el mensaje como parámetro
+                            btnConnect.setEnabled(false);  // Se deshabilita el botón de Conectar
                             break;
-                        case ChatController.STATE_CONNECTING:
-                            setStatus("Connecting...");
-                            btnConnect.setEnabled(false);
+                        case ChatController.STATE_CONNECTING:  // Si es estado conectando
+                            setStatus("Connecting...");  // Se envía el mensaje como parámetro
+                            btnConnect.setEnabled(false);  // Se deshabilita el botón de Conectar
                             break;
                         case ChatController.STATE_LISTEN:
                         case ChatController.STATE_NONE:
@@ -107,22 +116,22 @@ public class MainActivity extends AppCompatActivity {
                             break;
                     }
                     break;
-                case MESSAGE_WRITE:
+                case MESSAGE_WRITE:    // Si es mensaje escrito
                     byte[] writeBuf = (byte[]) msg.obj;
 
-                    String writeMessage = new String(writeBuf);
-                    chatMessages.add("Me: " + writeMessage);
+                    String writeMessage = new String(writeBuf);  // Se almacena el mensaje a mostrar
+                    chatMessages.add("Me: " + writeMessage);        // Se agrega el mensaje al arreglo de mensajes
                     chatAdapter.notifyDataSetChanged();
                     break;
-                case MESSAGE_READ:
+                case MESSAGE_READ:      // Si es mensaje lectura
                     byte[] readBuf = (byte[]) msg.obj;
 
                     String readMessage = new String(readBuf, 0, msg.arg1);
                     chatMessages.add(connectingDevice.getName() + ":  " + readMessage);
                     chatAdapter.notifyDataSetChanged();
                     break;
-                case MESSAGE_DEVICE_OBJECT:
-                    connectingDevice = msg.getData().getParcelable(DEVICE_OBJECT);
+                case MESSAGE_DEVICE_OBJECT:     // Si es mensaje del objeto del dispositivo
+                    connectingDevice = msg.getData().getParcelable(DEVICE_OBJECT);      // Se guarda los datos del dispositivo
                     Toast.makeText(getApplicationContext(), "Connected to " + connectingDevice.getName(),
                             Toast.LENGTH_SHORT).show();
                     break;
@@ -136,7 +145,7 @@ public class MainActivity extends AppCompatActivity {
     });
 
     private void showPrinterPickDialog() {
-        dialog = new Dialog(this);
+        dialog = new Dialog(this);      // Se crea el cuadro de diálogo de dispositivos Bluetooth
         dialog.setContentView(R.layout.layout_bluetooth);  // se envía el layout al cuadro de diálogo
         dialog.setTitle("Bluetooth Devices");
 
@@ -235,36 +244,59 @@ public class MainActivity extends AppCompatActivity {
         btnSendImg.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                /*Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-                intent.addCategory(Intent.CATEGORY_OPENABLE);
-                intent.setType("image/*");
-                startActivityForResult(intent, SELECT_PICTURE);*/
-                Intent intent = new Intent();
-                intent.setType("image/*");
-                intent.setAction(Intent.ACTION_GET_CONTENT);
-                startActivityForResult(Intent.createChooser(intent,"Select Picture"), SELECT_PICTURE);
+
+                /*Intent intent = new Intent(Intent.ACTION_GET_CONTENT); intent.addCategory(Intent.CATEGORY_OPENABLE);
+                intent.setType("image/*"); startActivityForResult(intent, SELECT_PICTURE);
+
+                /*Intent intent = new Intent(); intent.setType("image/*"); intent.setAction(Intent.ACTION_GET_CONTENT);
+                startActivityForResult(Intent.createChooser(intent,"Select Picture"), SELECT_PICTURE);*/
+
+                // Según la versión del dispositivo
+
+                if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                    Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+                    intent.addCategory(Intent.CATEGORY_OPENABLE);
+                    intent.setType("image/*");
+                    startActivityForResult(Intent.createChooser(intent, "Select Picture"), SELECT_PICTURE);
+                } else {
+                    Intent intent = new Intent();
+                    intent.setType("image/*");
+                    intent.setAction(Intent.ACTION_GET_CONTENT);
+                    startActivityForResult(Intent.createChooser(intent, "Select Picture"), SELECT_PICTURE);
+                }
             }
         });
 
         btnSend.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
-                //String imagen = null;
-                //Bitmap bitmap = BitmapFactory.decodeResource(imagen);
-
-                if (inputLayout.getEditText().getText().toString().equals("")) {
-                    Toast.makeText(MainActivity.this, "Please input some texts", Toast.LENGTH_SHORT).show();
-                } else {
-                    //TODO: here
-                    sendMessage(inputLayout.getEditText().getText().toString());
-                    inputLayout.getEditText().setText("");
+                if (tipo_mensaje.equals("texto")){
+                    if (inputLayout.getEditText().getText().toString().equals("")) {
+                        Toast.makeText(MainActivity.this, "Please input some texts", Toast.LENGTH_SHORT).show();
+                    } else {
+                        sendMessage(inputLayout.getEditText().getText().toString());
+                        inputLayout.getEditText().setText("");
+                    }
+                }
+                else if (tipo_mensaje.equals("imagen")){
+                    try{
+                        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+                        bitmap.compress(Bitmap.CompressFormat.PNG, 50, stream);
+                        byte[] imageBytes = stream.toByteArray();
+                        int subArraySize = 400;
+                        sendMultimediaMessage(String.valueOf(imageBytes.length).getBytes());
+                        for(int i = 0; i < imageBytes.length; i+=subArraySize){
+                            byte[] tempArray;
+                            tempArray = Arrays.copyOfRange(imageBytes, i,  Math.min(imageBytes.length, i+subArraySize));
+                            sendMultimediaMessage(tempArray);
+                        }
+                    }catch (Exception e){
+                        Toast.makeText(MainActivity.this, e.toString(), Toast.LENGTH_SHORT).show();
+                    }
                 }
             }
         });
     }
-
-
 
 
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -279,34 +311,20 @@ public class MainActivity extends AppCompatActivity {
             case SELECT_PICTURE:
                 if (resultCode == Activity.RESULT_OK){
                     if(data != null){
+                        tipo_mensaje = "imagen";
                         try{
-
                             Uri imgUri = data.getData();
-                            String path = getPath(imgUri);
-                            Toast.makeText(this, "Image Path : " + path, Toast.LENGTH_SHORT).show();
-
-                            Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), imgUri);
+                            bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), imgUri);
                             bitmap = Bitmap.createScaledBitmap(bitmap,  600 ,600, true);
                             imagen.setImageBitmap(bitmap);
-
                         }catch (Exception e){
-                            //e.printStackTrace();
                             Toast.makeText(this, e.toString(), Toast.LENGTH_SHORT).show();
                         }
                     }
                 }else {
                     Toast.makeText(this, "Error al escoger imagen", Toast.LENGTH_SHORT).show();
-                    finish();
                 }
         }
-    }
-
-    public String getPath(Uri uri) {
-        String[] projection = { MediaStore.Images.Media.DATA };
-        Cursor cursor = managedQuery(uri, projection, null, null, null);
-        int column_index = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
-        cursor.moveToFirst();
-        return cursor.getString(column_index);
     }
 
     private void sendMessage(String message) {
@@ -314,11 +332,21 @@ public class MainActivity extends AppCompatActivity {
             Toast.makeText(this, "Connection was lost!", Toast.LENGTH_SHORT).show();
             return;
         }
-
         if (message.length() > 0) {
             byte[] send = message.getBytes();
-            chatController.write(send);
+            chatController.write(send, tipo_mensaje);
         }
+    }
+
+
+    private void sendMultimediaMessage(byte[] message) {
+        if (chatController.getState() != ChatController.STATE_CONNECTED) {
+            Toast.makeText(this, "Connection was lost!", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        Toast.makeText(this, "No disponible", Toast.LENGTH_SHORT).show();
+        tipo_mensaje = "texto";
+        //chatController.write(message, tipo_mensaje);
     }
 
     @Override
