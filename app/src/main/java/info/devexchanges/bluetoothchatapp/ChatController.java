@@ -24,6 +24,7 @@ import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.widget.Toast;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -45,6 +46,8 @@ public class ChatController {
     static final int STATE_LISTEN = 1;
     static final int STATE_CONNECTING = 2;
     static final int STATE_CONNECTED = 3;
+
+    String tipo_envio = "";
 
     public ChatController(Context context, Handler handler) {
         bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
@@ -160,14 +163,16 @@ public class ChatController {
         setState(STATE_NONE);
     }
 
-    public void write(byte[] out) {
+    public void write(byte[] out, String tipo_mensaje) {
+        tipo_envio = tipo_mensaje;
+
         ReadWriteThread r;
         synchronized (this) {
             if (state != STATE_CONNECTED)
                 return;
             r = connectedThread;
         }
-        r.write(out);
+        r.write(out, tipo_envio);
     }
 
     private void connectionFailed() {
@@ -329,8 +334,7 @@ public class ChatController {
                 try {
                     // Read from the InputStream
                     bytes = inputStream.read(buffer);
-
-                    // Send the obtained bytes to the UI Activity
+                     // Send the obtained bytes to the UI Activity
                     handler.obtainMessage(MainActivity.MESSAGE_READ, bytes, -1,
                             buffer).sendToTarget();
                 } catch (IOException e) {
@@ -340,15 +344,26 @@ public class ChatController {
                     break;
                 }
             }
+            //}
         }
 
         // write to OutputStream
-        public void write(byte[] buffer) {
-            try {
-                outputStream.write(buffer);
-                handler.obtainMessage(MainActivity.MESSAGE_WRITE, -1, -1,
-                        buffer).sendToTarget();
-            } catch (IOException e) {
+        public void write(byte[] buffer, String tipo_envio) {
+            if (tipo_envio.equals("texto")){
+                try {
+                    outputStream.write(buffer);
+                    handler.obtainMessage(MainActivity.MESSAGE_WRITE, -1, -1,
+                            buffer).sendToTarget();
+                } catch (IOException e) {
+                }
+            }
+            if (tipo_envio.equals("imagen")){
+                try {
+                    outputStream.write(buffer);
+                    handler.obtainMessage(MainActivity.MESSAGE_WRITE, -1, -1,
+                            buffer).sendToTarget();
+                } catch (IOException e) {
+                }
             }
         }
 
