@@ -28,7 +28,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="5dp"
-            android:text="Connect" />
+            android:text="Conectar" />
     </LinearLayout>
 
     <ImageView android:id="@+id/imgSelect"
@@ -59,7 +59,7 @@
             <EditText
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Input some text" />
+                android:hint="Escriba un mensaje" />
         </android.support.design.widget.TextInputLayout>
 
         <Button
@@ -68,7 +68,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_weight="0.2"
-            android:text="send" />
+            android:text="Enviar" />
 
         <Button
             android:id="@+id/btn_sendImg"
@@ -76,7 +76,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_weight="0.2"
-            android:text="File" />
+            android:text="Archivo" />
 
     </LinearLayout>
 

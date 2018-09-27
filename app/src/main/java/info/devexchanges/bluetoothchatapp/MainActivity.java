@@ -94,16 +94,16 @@ public class MainActivity extends AppCompatActivity {
                 case MESSAGE_STATE_CHANGE:
                     switch (msg.arg1) {
                         case ChatController.STATE_CONNECTED:
-                            setStatus("Connected to: " + connectingDevice.getName());
+                            setStatus("Conectado a: " + connectingDevice.getName());
                             btnConnect.setEnabled(false);
                             break;
                         case ChatController.STATE_CONNECTING:
-                            setStatus("Connecting...");
+                            setStatus("Conectando...");
                             btnConnect.setEnabled(false);
                             break;
                         case ChatController.STATE_LISTEN:
                         case ChatController.STATE_NONE:
-                            setStatus("Not connected");
+                            setStatus("No Conectado");
                             break;
                     }
                     break;
@@ -111,7 +111,7 @@ public class MainActivity extends AppCompatActivity {
                     byte[] writeBuf = (byte[]) msg.obj;
 
                     String writeMessage = new String(writeBuf);
-                    chatMessages.add("Me: " + writeMessage);
+                    chatMessages.add("Yo: " + writeMessage);
                     chatAdapter.notifyDataSetChanged();
                     break;
                 case MESSAGE_READ:
@@ -123,7 +123,7 @@ public class MainActivity extends AppCompatActivity {
                     break;
                 case MESSAGE_DEVICE_OBJECT:
                     connectingDevice = msg.getData().getParcelable(DEVICE_OBJECT);
-                    Toast.makeText(getApplicationContext(), "Connected to " + connectingDevice.getName(),
+                    Toast.makeText(getApplicationContext(), "Conectado a " + connectingDevice.getName(),
                             Toast.LENGTH_SHORT).show();
                     break;
                 case MESSAGE_TOAST:
@@ -138,7 +138,7 @@ public class MainActivity extends AppCompatActivity {
     private void showPrinterPickDialog() {
         dialog = new Dialog(this);
         dialog.setContentView(R.layout.layout_bluetooth);  // se envía el layout al cuadro de diálogo
-        dialog.setTitle("Bluetooth Devices");
+        dialog.setTitle("Dispositivos Bluetooth");
 
         if (bluetoothAdapter.isDiscovering()) {
             bluetoothAdapter.cancelDiscovery();
@@ -242,7 +242,7 @@ public class MainActivity extends AppCompatActivity {
                 Intent intent = new Intent();
                 intent.setType("image/*");
                 intent.setAction(Intent.ACTION_GET_CONTENT);
-                startActivityForResult(Intent.createChooser(intent,"Select Picture"), SELECT_PICTURE);
+                startActivityForResult(Intent.createChooser(intent,"Seleccionar Imagen"), SELECT_PICTURE);
             }
         });
 
@@ -254,7 +254,7 @@ public class MainActivity extends AppCompatActivity {
                 //Bitmap bitmap = BitmapFactory.decodeResource(imagen);
 
                 if (inputLayout.getEditText().getText().toString().equals("")) {
-                    Toast.makeText(MainActivity.this, "Please input some texts", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(MainActivity.this, "Escriba un mensaje por favor", Toast.LENGTH_SHORT).show();
                 } else {
                     //TODO: here
                     sendMessage(inputLayout.getEditText().getText().toString());
@@ -273,7 +273,7 @@ public class MainActivity extends AppCompatActivity {
                 if (resultCode == Activity.RESULT_OK) {
                     chatController = new ChatController(this, handler);
                 } else {
-                    Toast.makeText(this, "Bluetooth still disabled, turn off application!", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, "Bluetooth está desactivado, cierre la aplicación", Toast.LENGTH_SHORT).show();
                     finish();
                 };
             case SELECT_PICTURE:
@@ -311,7 +311,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void sendMessage(String message) {
         if (chatController.getState() != ChatController.STATE_CONNECTED) {
-            Toast.makeText(this, "Connection was lost!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "¡Conexión perdida!", Toast.LENGTH_SHORT).show();
             return;
         }
 
