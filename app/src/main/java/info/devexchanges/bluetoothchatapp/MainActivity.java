@@ -103,16 +103,16 @@ public class MainActivity extends AppCompatActivity {
                 case MESSAGE_STATE_CHANGE:  // Si es mensaje de cambio de estado
                     switch (msg.arg1) {
                         case ChatController.STATE_CONNECTED:  // Si es estado conectado
-                            setStatus("Connected to: " + connectingDevice.getName());  // Se envía el mensaje como parámetro
+                            setStatus("Conectado a: " + connectingDevice.getName());  // Se envía el mensaje como parámetro
                             btnConnect.setEnabled(false);  // Se deshabilita el botón de Conectar
                             break;
                         case ChatController.STATE_CONNECTING:  // Si es estado conectando
-                            setStatus("Connecting...");  // Se envía el mensaje como parámetro
+                            setStatus("Conectando...");  // Se envía el mensaje como parámetro
                             btnConnect.setEnabled(false);  // Se deshabilita el botón de Conectar
                             break;
                         case ChatController.STATE_LISTEN:
                         case ChatController.STATE_NONE:
-                            setStatus("Not connected");
+                            setStatus("No conectado");
                             break;
                     }
                     break;
@@ -120,7 +120,7 @@ public class MainActivity extends AppCompatActivity {
                     byte[] writeBuf = (byte[]) msg.obj;
 
                     String writeMessage = new String(writeBuf);  // Se almacena el mensaje a mostrar
-                    chatMessages.add("Me: " + writeMessage);        // Se agrega el mensaje al arreglo de mensajes
+                    chatMessages.add("Yo: " + writeMessage);        // Se agrega el mensaje al arreglo de mensajes
                     chatAdapter.notifyDataSetChanged();
                     break;
                 case MESSAGE_READ:      // Si es mensaje lectura
@@ -132,7 +132,7 @@ public class MainActivity extends AppCompatActivity {
                     break;
                 case MESSAGE_DEVICE_OBJECT:     // Si es mensaje del objeto del dispositivo
                     connectingDevice = msg.getData().getParcelable(DEVICE_OBJECT);      // Se guarda los datos del dispositivo
-                    Toast.makeText(getApplicationContext(), "Connected to " + connectingDevice.getName(),
+                    Toast.makeText(getApplicationContext(), "Conectado a " + connectingDevice.getName(),
                             Toast.LENGTH_SHORT).show();
                     break;
                 case MESSAGE_TOAST:
@@ -147,7 +147,7 @@ public class MainActivity extends AppCompatActivity {
     private void showPrinterPickDialog() {
         dialog = new Dialog(this);      // Se crea el cuadro de diálogo de dispositivos Bluetooth
         dialog.setContentView(R.layout.layout_bluetooth);  // se envía el layout al cuadro de diálogo
-        dialog.setTitle("Bluetooth Devices");
+        dialog.setTitle("Dispositivos Bluetooth");
 
         if (bluetoothAdapter.isDiscovering()) {
             bluetoothAdapter.cancelDiscovery();
@@ -257,12 +257,12 @@ public class MainActivity extends AppCompatActivity {
                     Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
                     intent.addCategory(Intent.CATEGORY_OPENABLE);
                     intent.setType("image/*");
-                    startActivityForResult(Intent.createChooser(intent, "Select Picture"), SELECT_PICTURE);
+                    startActivityForResult(Intent.createChooser(intent, "Seleccionar Imagen"), SELECT_PICTURE);
                 } else {
                     Intent intent = new Intent();
                     intent.setType("image/*");
                     intent.setAction(Intent.ACTION_GET_CONTENT);
-                    startActivityForResult(Intent.createChooser(intent, "Select Picture"), SELECT_PICTURE);
+                    startActivityForResult(Intent.createChooser(intent, "Seleccionar Imagen"), SELECT_PICTURE);
                 }
             }
         });
@@ -272,7 +272,7 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) {
                 if (tipo_mensaje.equals("texto")){
                     if (inputLayout.getEditText().getText().toString().equals("")) {
-                        Toast.makeText(MainActivity.this, "Please input some texts", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(MainActivity.this, "Escriba un mensaje por facor", Toast.LENGTH_SHORT).show();
                     } else {
                         sendMessage(inputLayout.getEditText().getText().toString());
                         inputLayout.getEditText().setText("");
@@ -305,7 +305,7 @@ public class MainActivity extends AppCompatActivity {
                 if (resultCode == Activity.RESULT_OK) {
                     chatController = new ChatController(this, handler);
                 } else {
-                    Toast.makeText(this, "Bluetooth still disabled, turn off application!", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, "Bluetooth no se pudo habilitar, cerrando apñlicación", Toast.LENGTH_SHORT).show();
                     finish();
                 };
             case SELECT_PICTURE:
@@ -329,7 +329,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void sendMessage(String message) {
         if (chatController.getState() != ChatController.STATE_CONNECTED) {
-            Toast.makeText(this, "Connection was lost!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "¡Connexión perdida!", Toast.LENGTH_SHORT).show();
             return;
         }
         if (message.length() > 0) {
@@ -341,7 +341,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void sendMultimediaMessage(byte[] message) {
         if (chatController.getState() != ChatController.STATE_CONNECTED) {
-            Toast.makeText(this, "Connection was lost!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "¡Connexión perdida!", Toast.LENGTH_SHORT).show();
             return;
         }
         Toast.makeText(this, "No disponible", Toast.LENGTH_SHORT).show();
