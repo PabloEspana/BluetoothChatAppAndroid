@@ -178,7 +178,7 @@ public class ChatController {
     private void connectionFailed() {
         Message msg = handler.obtainMessage(MainActivity.MESSAGE_TOAST);
         Bundle bundle = new Bundle();
-        bundle.putString("toast", "Unable to connect device");
+        bundle.putString("toast", "No se puede conectar al dispositivo");
         msg.setData(bundle);
         handler.sendMessage(msg);
 
@@ -189,7 +189,7 @@ public class ChatController {
     private void connectionLost() {
         Message msg = handler.obtainMessage(MainActivity.MESSAGE_TOAST);
         Bundle bundle = new Bundle();
-        bundle.putString("toast", "Device connection was lost");
+        bundle.putString("toast", "Conexión perdida con el dispositivo");
         msg.setData(bundle);
         handler.sendMessage(msg);
 
