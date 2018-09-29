@@ -124,12 +124,21 @@ public class MainActivity extends AppCompatActivity {
                     chatAdapter.notifyDataSetChanged();
                     break;
                 case MESSAGE_READ:      // Si es mensaje lectura
-                    byte[] readBuf = (byte[]) msg.obj;
-
+                    /*byte[] readBuf = (byte[]) msg.obj;
                     String readMessage = new String(readBuf, 0, msg.arg1);
                     chatMessages.add(connectingDevice.getName() + ":  " + readMessage);
                     chatAdapter.notifyDataSetChanged();
+                    break;*/
+                    byte[] readBuf = (byte[]) msg.obj;
+                    try{
+                        Bitmap bm = BitmapFactory.decodeByteArray(readBuf, 0, msg.arg1);
+                        bm = Bitmap.createScaledBitmap(bm,  600 ,600, true);
+                        imagen.setImageBitmap(bm);
+                    }catch (Exception e){
+                        Toast.makeText(MainActivity.this, e.toString(), Toast.LENGTH_SHORT).show();
+                    }
                     break;
+
                 case MESSAGE_DEVICE_OBJECT:     // Si es mensaje del objeto del dispositivo
                     connectingDevice = msg.getData().getParcelable(DEVICE_OBJECT);      // Se guarda los datos del dispositivo
                     Toast.makeText(getApplicationContext(), "Conectado a " + connectingDevice.getName(),
@@ -244,15 +253,6 @@ public class MainActivity extends AppCompatActivity {
         btnSendImg.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
-                /*Intent intent = new Intent(Intent.ACTION_GET_CONTENT); intent.addCategory(Intent.CATEGORY_OPENABLE);
-                intent.setType("image/*"); startActivityForResult(intent, SELECT_PICTURE);
-
-                /*Intent intent = new Intent(); intent.setType("image/*"); intent.setAction(Intent.ACTION_GET_CONTENT);
-                startActivityForResult(Intent.createChooser(intent,"Select Picture"), SELECT_PICTURE);*/
-
-                // Según la versión del dispositivo
-
                 if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
                     Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
                     intent.addCategory(Intent.CATEGORY_OPENABLE);
@@ -272,7 +272,7 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) {
                 if (tipo_mensaje.equals("texto")){
                     if (inputLayout.getEditText().getText().toString().equals("")) {
-                        Toast.makeText(MainActivity.this, "Escriba un mensaje por facor", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(MainActivity.this, "Escriba un mensaje por favor", Toast.LENGTH_SHORT).show();
                     } else {
                         sendMessage(inputLayout.getEditText().getText().toString());
                         inputLayout.getEditText().setText("");
@@ -280,6 +280,7 @@ public class MainActivity extends AppCompatActivity {
                 }
                 else if (tipo_mensaje.equals("imagen")){
                     try{
+
                         ByteArrayOutputStream stream = new ByteArrayOutputStream();
                         bitmap.compress(Bitmap.CompressFormat.PNG, 50, stream);
                         byte[] imageBytes = stream.toByteArray();
@@ -290,6 +291,14 @@ public class MainActivity extends AppCompatActivity {
                             tempArray = Arrays.copyOfRange(imageBytes, i,  Math.min(imageBytes.length, i+subArraySize));
                             sendMultimediaMessage(tempArray);
                         }
+
+
+                        /* Segunda forma de envío
+                        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+                        bitmap.compress(Bitmap.CompressFormat.JPEG, 40, bytes);
+                        byte[] image = bytes.toByteArray();
+                        sendMultimediaMessage(String.valueOf(image.length).getBytes());*/
+
                     }catch (Exception e){
                         Toast.makeText(MainActivity.this, e.toString(), Toast.LENGTH_SHORT).show();
                     }
@@ -339,14 +348,13 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    private void sendMultimediaMessage(byte[] message) {
+    private void sendMultimediaMessage(byte[] image) {
         if (chatController.getState() != ChatController.STATE_CONNECTED) {
             Toast.makeText(this, "¡Connexión perdida!", Toast.LENGTH_SHORT).show();
             return;
         }
-        Toast.makeText(this, "No disponible", Toast.LENGTH_SHORT).show();
+        chatController.write(image, tipo_mensaje);
         tipo_mensaje = "texto";
-        //chatController.write(message, tipo_mensaje);
     }
 
     @Override
