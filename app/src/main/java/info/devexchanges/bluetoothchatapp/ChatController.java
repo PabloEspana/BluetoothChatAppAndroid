@@ -395,7 +395,7 @@ public class ChatController {
                 } catch (IOException e) {
                 }
             }
-            if (tipo_mensaje.equals("imagenes")){
+            if (tipo_mensaje.equals("imagen")){
                 try {
                     outputStream.write(buffer);
                     outputStream.flush();
